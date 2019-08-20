@@ -9,7 +9,7 @@ import bmesh
 
 class test2(bpy.types.Operator):
 	"""test2"""
-	bl_idname = "object.test2"
+	bl_idname = "mesh.test2"
 	bl_label = "test2"
 	bl_options = {'REGISTER', 'UNDO'}
 
