@@ -1,1 +1,1 @@
-blender --python test2.py
+blender --python smoothie.py

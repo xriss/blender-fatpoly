@@ -1,5 +1,5 @@
 bl_info = {
-	"name": "test2",
+	"name": "smoothie",
 	"category": "Mesh",
 }
 
@@ -7,10 +7,10 @@ import bpy
 import bmesh
 
 
-class test2(bpy.types.Operator):
-	"""test2"""
-	bl_idname = "mesh.test2"
-	bl_label = "test2"
+class smoothie(bpy.types.Operator):
+	"""smoothie"""
+	bl_idname = "mesh.smoothie"
+	bl_label = "smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	total: bpy.props.IntProperty(name="Steps", default=2, min=1, max=100)
@@ -55,16 +55,16 @@ class test2(bpy.types.Operator):
 			me.update()
 
 def menu_func(self, context):
-	self.layout.operator(test2.bl_idname)
+	self.layout.operator(smoothie.bl_idname)
 
 
 def register():
-	bpy.utils.register_class(test2)
+	bpy.utils.register_class(smoothie)
 	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
 	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_class(test2)
+	bpy.utils.unregister_class(smoothie)
 
 
 if __name__ == "__main__":
