@@ -22,14 +22,37 @@ class test2(bpy.types.Operator):
 
 		print(bm)
 
+		for v in bm.verts:
+			v.co.x += 1.00
+		
+		self.set_bm(context,bm)
+		
 		return {'FINISHED'}
 
 	def get_bm(self,context):
 		obj = context.active_object
 		if not obj:
 			return
-		if obj.mode == "EDIT" and obj.type == "MESH":
+		if obj.type != "MESH" :
+			return
+		if obj.mode == "EDIT" :
 			return bmesh.from_edit_mesh(obj.data)
+		else:
+			bm = bmesh.new()
+			bm.from_mesh(obj.data)
+			return bm
+
+	def set_bm(self,context,bm):
+		obj = context.active_object
+		if not obj:
+			return
+		if obj.type != "MESH" :
+			return
+		if obj.mode == "EDIT" :
+			bmesh.update_edit_mesh(obj.data, False, False)
+		else:
+			bm.to_mesh(me)
+			me.update()
 
 def menu_func(self, context):
 	self.layout.operator(test2.bl_idname)
