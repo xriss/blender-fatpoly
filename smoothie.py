@@ -15,37 +15,53 @@ class smoothie(bpy.types.Operator):
 	bl_label = "smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	total: bpy.props.IntProperty(name="Steps", default=2, min=1, max=100)
+	steps = bpy.props.IntProperty(name="Steps", default=2, min=1, max=100)
 
 	def execute(self, context):
 		bm = self.get_bm(context)
 		if not bm :
 			return {'CANCELLED'}
 
-		print(bm)
-		
 		lens = [] # length of each edge
 		aves = [] # smoothed xyz of each vertex
+		
+# average centre of verts
 
-# initialize aves
+		center=Vector((0,0,0,0))
 		for v in bm.verts:
-			aves.append( Vector((0,0,0,0)) )
-			print(v.index,v.co)
+			center+=Vector((v.co.x,v.co.y,v.co.z,1))
+		center=Vector((center.x/center.w,center.y/center.w,center.z/center.w))
 
-# initialize lens and build smooth aves
+		size=0.0
+		count=0.0
+		for v in bm.verts:
+			size+=(v.co-center).length
+			count+=1.0
+		startsize=size/count
+
+# initialize lists outside of the main loop
 		for e in bm.edges:
 			lens.append( e.calc_length() )
-			for v in e.verts:
-				aves[e.verts[0].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
-				aves[e.verts[1].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
+		for v in bm.verts:
+			aves.append( Vector((0,0,0,0)) )
+
+		for i in range(1,self.steps):
+
+# initialize aves
+			for v in bm.verts:
+				aves[v.index]=Vector((0,0,0,0))
+
+# build smooth aves
+			for e in bm.edges:
+				for v in e.verts:
+					aves[e.verts[0].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
+					aves[e.verts[1].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
 
 # apply aves to vertex location ( smooth )
-		for v in bm.verts:
-			a=aves[v.index]
-			v.co=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
-			print(v.index,v.co,a)
+			for v in bm.verts:
+				a=aves[v.index]
+				v.co=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
 
-		for i in range(1,4):
 # reset aves
 			for v in bm.verts:
 				aves[v.index]=Vector((0,0,0,0))
@@ -59,12 +75,24 @@ class smoothie(bpy.types.Operator):
 					aves[e.verts[0].index]+=Vector((d.x,d.y,d.z,1))
 					aves[e.verts[1].index]+=Vector((-d.x,-d.y,-d.z,1))
 
-
 # apply aves to vertex location ( springs )
 			for v in bm.verts:
 				a=aves[v.index]
 				v.co+=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
 		
+
+# try and keep the vert cloud the sameish size
+
+			size=0.0
+			count=0.0
+			for v in bm.verts:
+				size+=(v.co-center).length
+				count+=1.0
+			size=size/count
+			resize=startsize/size
+			for v in bm.verts:
+				v.co=((v.co-center)*resize)+center
+
 		self.set_bm(context,bm)
 		
 		return {'FINISHED'}
@@ -89,10 +117,12 @@ class smoothie(bpy.types.Operator):
 		if obj.type != "MESH" :
 			return
 		if obj.mode == "EDIT" :
-			bmesh.update_edit_mesh(obj.data, True, True)
+			bmesh.update_edit_mesh(obj.data, False, False)
+#			obj.data.calc_normals()
 		else:
-			bm.to_mesh(me)
-			me.update()
+			bm.to_mesh(obj.data)
+			obj.data.update()
+#			obj.data.calc_normals()
 
 def menu_func(self, context):
 	self.layout.operator(smoothie.bl_idname)
