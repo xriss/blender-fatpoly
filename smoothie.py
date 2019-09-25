@@ -15,12 +15,23 @@ class smoothie(bpy.types.Operator):
 	bl_label = "smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	steps = bpy.props.IntProperty(name="Steps", default=2, min=1, max=100)
+	x = bpy.props.IntProperty()
+	y = bpy.props.IntProperty()
+    
+	steps : bpy.props.IntProperty(name="Steps", default=10, min=1, max=100)
+
+	def invoke(self, context, event):
+		self.x = event.mouse_x
+		self.y = event.mouse_y
+		return self.execute(context)
 
 	def execute(self, context):
 		bm = self.get_bm(context)
 		if not bm :
 			return {'CANCELLED'}
+			
+		self.report({'INFO'}, "Mouse coords are %d %d" % (self.x, self.y))
+
 
 		lens = [] # length of each edge
 		aves = [] # smoothed xyz of each vertex
@@ -42,6 +53,7 @@ class smoothie(bpy.types.Operator):
 # initialize lists outside of the main loop
 		for e in bm.edges:
 			lens.append( e.calc_length() )
+#			lens.append( startsize/1024.0 )
 		for v in bm.verts:
 			aves.append( Vector((0,0,0,0)) )
 
@@ -60,7 +72,8 @@ class smoothie(bpy.types.Operator):
 # apply aves to vertex location ( smooth )
 			for v in bm.verts:
 				a=aves[v.index]
-				v.co=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
+				if v.select :
+					v.co=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
 
 # reset aves
 			for v in bm.verts:
@@ -78,20 +91,25 @@ class smoothie(bpy.types.Operator):
 # apply aves to vertex location ( springs )
 			for v in bm.verts:
 				a=aves[v.index]
-				v.co+=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
+				if v.select :
+					v.co+=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
 		
 
 # try and keep the vert cloud the sameish size
 
-			size=0.0
-			count=0.0
-			for v in bm.verts:
-				size+=(v.co-center).length
-				count+=1.0
-			size=size/count
-			resize=startsize/size
-			for v in bm.verts:
+		size=0.0
+		count=0.0
+		for v in bm.verts:
+			size+=(v.co-center).length
+			count+=1.0
+		if count==0 : count=1
+		size=size/count
+		resize=startsize/size
+		for v in bm.verts:
+			if v.select :
 				v.co=((v.co-center)*resize)+center
+
+		bmesh.ops.recalc_face_normals(bm)
 
 		self.set_bm(context,bm)
 		
@@ -118,11 +136,9 @@ class smoothie(bpy.types.Operator):
 			return
 		if obj.mode == "EDIT" :
 			bmesh.update_edit_mesh(obj.data, False, False)
-#			obj.data.calc_normals()
 		else:
 			bm.to_mesh(obj.data)
 			obj.data.update()
-#			obj.data.calc_normals()
 
 def menu_func(self, context):
 	self.layout.operator(smoothie.bl_idname)

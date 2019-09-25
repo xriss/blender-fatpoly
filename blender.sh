@@ -1,1 +1,1 @@
-blender --python smoothie.py
+blender --python smoothie.py smoothie.blend
