@@ -18,7 +18,7 @@ class smoothie(bpy.types.Operator):
 	x = bpy.props.IntProperty()
 	y = bpy.props.IntProperty()
     
-	steps : bpy.props.IntProperty(name="Steps", default=10, min=1, max=100)
+	steps : bpy.props.IntProperty(name="Steps", default=1, min=1, max=100)
 
 	def invoke(self, context, event):
 		self.x = event.mouse_x
@@ -46,8 +46,10 @@ class smoothie(bpy.types.Operator):
 		size=0.0
 		count=0.0
 		for v in bm.verts:
-			size+=(v.co-center).length
-			count+=1.0
+			if v.select :
+				size+=(v.co-center).length
+				count+=1.0
+		if count==0 : count=1
 		startsize=size/count
 
 # initialize lists outside of the main loop
@@ -57,17 +59,32 @@ class smoothie(bpy.types.Operator):
 		for v in bm.verts:
 			aves.append( Vector((0,0,0,0)) )
 
-		for i in range(1,self.steps):
+		for i in range(self.steps):
 
 # initialize aves
 			for v in bm.verts:
+#				aves[v.index]+=Vector((v.co.x,v.co.y,v.co.z,1))
 				aves[v.index]=Vector((0,0,0,0))
 
 # build smooth aves
 			for e in bm.edges:
+				for ia in range(2):
+					ib=(ia+1)%2
+					va=e.verts[ia]
+					vb=e.verts[ib]
+					vc=va.normal.cross(vb.co-va.co)
+					vd=va.normal.cross(vc)
+					vd.normalize()
+					vd*=(vb.co-va.co).length
+					vd+=va.co
+					aves[vb.index]+=Vector((vd.x,vd.y,vd.z,1))
+#					aves[vb.index]+=Vector((vb.co.x,vb.co.y,vb.co.z,1))
+
 				for v in e.verts:
 					aves[e.verts[0].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
 					aves[e.verts[1].index]+=Vector((v.co.x,v.co.y,v.co.z,1))
+#				aves[e.verts[0].index]+=Vector((e.verts[1].co.x,e.verts[1].co.y,e.verts[1].co.z,1))
+#				aves[e.verts[1].index]+=Vector((e.verts[0].co.x,e.verts[0].co.y,e.verts[0].co.z,1))
 
 # apply aves to vertex location ( smooth )
 			for v in bm.verts:
@@ -91,25 +108,30 @@ class smoothie(bpy.types.Operator):
 # apply aves to vertex location ( springs )
 			for v in bm.verts:
 				a=aves[v.index]
-				if v.select :
-					v.co+=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
+#				if v.select :
+#					v.co+=Vector((a.x/a.w,a.y/a.w,a.z/a.w))
 		
+# make sure normals are fixed
+
+			bm.normal_update()
+
 
 # try and keep the vert cloud the sameish size
 
 		size=0.0
 		count=0.0
 		for v in bm.verts:
-			size+=(v.co-center).length
-			count+=1.0
+			if v.select :
+				size+=(v.co-center).length
+				count+=1.0
 		if count==0 : count=1
 		size=size/count
 		resize=startsize/size
-		for v in bm.verts:
-			if v.select :
-				v.co=((v.co-center)*resize)+center
+#		for v in bm.verts:
+#			if v.select :
+#				v.co=((v.co-center)*resize)+center
 
-		bmesh.ops.recalc_face_normals(bm)
+		bm.normal_update()
 
 		self.set_bm(context,bm)
 		
