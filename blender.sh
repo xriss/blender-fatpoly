@@ -1,1 +1,1 @@
-blender --python smoothie.py smoothie.blend
+blender --python fatpoly.py fatpoly.blend
