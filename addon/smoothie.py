@@ -15,8 +15,8 @@ class smoothie(bpy.types.Operator):
 	bl_label = "smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	x = bpy.props.IntProperty()
-	y = bpy.props.IntProperty()
+	x : bpy.props.IntProperty()
+	y : bpy.props.IntProperty()
     
 	steps : bpy.props.IntProperty(name="Steps", default=1, min=1, max=100)
 

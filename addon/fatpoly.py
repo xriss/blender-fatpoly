@@ -4,9 +4,11 @@ from pathlib import Path
 base_path = Path(__file__).parent
 
 
-for name in ("smoothie.py") :
+print( "LOADING FATPOLY" )
 
-	filepath=(base_path / "smoothie.py").resolve()
+for name in ("smoothie.py","test.py") :
+
+	filepath=(base_path / name).resolve()
 	print( filepath )
 
 	global_namespace = {"__file__": filepath, "__name__": "__main__"}
@@ -14,3 +16,4 @@ for name in ("smoothie.py") :
 		exec(compile(file.read(), filepath, 'exec'), global_namespace)
     
     
+print( "LOADED FATPOLY" )
