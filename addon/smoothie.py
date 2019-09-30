@@ -168,10 +168,10 @@ def menu_func(self, context):
 
 def register():
 	bpy.utils.register_class(smoothie)
-	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
+#	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
-	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
+#	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
 	bpy.utils.unregister_class(smoothie)
 
 

@@ -20,13 +20,42 @@ class flatop(bpy.types.Operator):
 		if not bm :
 			return {'CANCELLED'}
 			
+		lens    = [None] * len(bm.edges) # cached edge lengths
 		floods  = [None] * len(bm.verts) # flood fill weight calculation
-		weights = [None] * len(bm.verts) # weighted xyz/w for each vertex
+		weights = [None] * len(bm.verts) # weighted xyz/w position for each vertex
+		normals = [None] * len(bm.verts) # weighted xyz/w normal for each vertex
+
+		'''
+# calculate our own vertex normals
+		for vw in bm.verts:
+			if not vw.select :
+				n=Vector((0,0,0,0))
+				for f in vw.link_faces :
+					valid = True
+					for v in f.verts :
+						if v.select :
+							valid = False
+					if valid :
+						n+=Vector((f.normal.x,f.normal.y,f.normal.z,1))
+				if n.w>0 :
+					normals[vw.index]=Vector((n.x,n.y,n.z))/n.w
+					normals[vw.index].normalize()
+				else :
+					normals[vw.index]=Vector((0,0,0))
+
+		for v in bm.verts:
+			if normals[v.index]:
+				v.normal=normals[v.index]
+			else:
+				v.normal=Vector((0,0,0))
+
+#		self.set_bm(context,bm)
+#		return {'FINISHED'}
+		'''
 
 # init
-		for v in bm.verts:
-			weights[v.index]=Vector((0,0,0,0))
-
+		for vw in bm.verts:
+			weights[vw.index]=Vector((0,0,0,0))
 
 # process each vertex
 		for vw in bm.verts:
@@ -57,11 +86,86 @@ class flatop(bpy.types.Operator):
 		for v in bm.verts:
 			a=weights[v.index]
 			if v.select :
-				v.co=Vector((a.x,a.y,a.z))/( a.w==0 and 1 or a.w )
-		
+				if a.w!=0 :
+					v.co=Vector((a.x,a.y,a.z))/a.w
+
+
+
+#		bm.normal_update()
+# init
+
+		for vw in bm.verts:
+			if vw.select :
+				normals[vw.index]=Vector((0,0,0,0))
+			else:
+				normals[vw.index]=Vector((vw.normal.x,vw.normal.y,vw.normal.z,1))
+
+# process each vertex
+		for vw in bm.verts:
+# this vertex is locked
+			if not vw.select :
+# reset flood distance calc for this vertex
+				for v in bm.verts:
+					floods[v.index]=0x7fffffff
+# seed start of flood
+				floods[vw.index]=1.0
+				active=True
+				while active :
+					active=False
+					for e in bm.edges:
+						for ia in range(2): # flip flop
+							va=e.verts[ia]
+							vb=e.verts[(ia+1)%2]
+							if vb.select and floods[vb.index] > floods[va.index]+1 :
+								floods[vb.index] = floods[va.index]+1
+								active=True
+# add weight dependent on edge distance from main vertex
+				for v in bm.verts:
+					f=floods[v.index]
+					if v.select and f<0x7fffffff and f>0 :
+						normals[v.index]+=Vector((vw.normal.x,vw.normal.y,vw.normal.z,1))*(1.0/(f*f*f))
+
+# apply all weights to find new vertex location
+		for v in bm.verts:
+			n=normals[v.index]
+			if n.w!=0 :
+				normals[v.index]=Vector((n.x,n.y,n.z))/n.w
+				normals[v.index].normalize()
+			else:
+				normals[v.index]=Vector((0,0,0))
+
 # make sure normals are fixed
 
-		bm.normal_update()
+		for v in bm.verts:
+			v.normal=normals[v.index]
+
+		for v in bm.verts:
+			weights[v.index]=Vector((0,0,0,0))
+			floods[v.index]=not v.select
+
+
+		active=True
+		while active :
+			active=False
+			for e in bm.edges:
+				for ia in range(2): # flip flop
+					va=e.verts[ia]
+					vb=e.verts[(ia+1)%2]
+					if floods[va.index] and not floods[vb.index] : # build vb from va
+						n = normals[vb.index]
+						d = n.dot(va.co-vb.co)
+						vo = n*d + vb.co
+						weights[vb.index]+=Vector((vo.x,vo.y,vo.z,1))
+						active=True
+
+			for v in bm.verts:
+				a=weights[v.index]
+				if not floods[v.index] and a.w > 0 :
+					v.co=Vector((a.x,a.y,a.z))/a.w
+					floods[v.index]=True
+
+
+
 
 		self.set_bm(context,bm)
 		
@@ -98,10 +202,10 @@ def menu_func(self, context):
 
 def register():
 	bpy.utils.register_class(flatop)
-	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
+#	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
-	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
+#	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
 	bpy.utils.unregister_class(flatop)
 
 
