@@ -1,5 +1,5 @@
 bl_info = {
-	"name": "flatop",
+	"name": "smoothie2",
 	"category": "Mesh",
 }
 
@@ -9,10 +9,10 @@ import bmesh
 from mathutils import *
 
 
-class flatop(bpy.types.Operator):
-	"""flatop"""
-	bl_idname = "mesh.flatop"
-	bl_label = "flatop"
+class smoothie2(bpy.types.Operator):
+	"""smoothie2"""
+	bl_idname = "mesh.smoothie2"
+	bl_label = "smoothie2"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
@@ -249,16 +249,16 @@ class flatop(bpy.types.Operator):
 			obj.data.update()
 
 def menu_func(self, context):
-	self.layout.operator(flatop.bl_idname)
+	self.layout.operator(smoothie2.bl_idname)
 
 
 def register():
-	bpy.utils.register_class(flatop)
+	bpy.utils.register_class(smoothie2)
 #	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
 #	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_class(flatop)
+	bpy.utils.unregister_class(smoothie2)
 
 
 if __name__ == "__main__":
