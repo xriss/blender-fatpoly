@@ -91,7 +91,7 @@ class flatop(bpy.types.Operator):
 
 
 
-#		bm.normal_update()
+		bm.normal_update()
 # init
 
 		for vw in bm.verts:
@@ -137,9 +137,6 @@ class flatop(bpy.types.Operator):
 # make sure normals are fixed
 
 		for v in bm.verts:
-			v.normal=normals[v.index]
-
-		for v in bm.verts:
 			weights[v.index]=Vector((0,0,0,0))
 			floods[v.index]=not v.select
 
@@ -151,10 +148,21 @@ class flatop(bpy.types.Operator):
 				for ia in range(2): # flip flop
 					va=e.verts[ia]
 					vb=e.verts[(ia+1)%2]
-					if floods[va.index] and not floods[vb.index] : # build vb from va
+					if floods[va.index] and (not floods[vb.index]) : # build vb from va
+						
 						n = normals[vb.index]
 						d = n.dot(va.co-vb.co)
 						vo = n*d + vb.co
+
+#						vl = vb.co-va.co
+#						na = normals[va.index]
+#						nb = normals[vb.index]
+#						vc = na.cross(vl)
+#						vd = vc.cross(nb)
+#						vd.normalize()
+#						d=vl.length
+#						vo = vd*d + va.co
+
 						weights[vb.index]+=Vector((vo.x,vo.y,vo.z,1))
 						active=True
 
