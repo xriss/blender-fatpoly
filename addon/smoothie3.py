@@ -15,8 +15,9 @@ class smoothie3(bpy.types.Operator):
 	bl_label = "smoothie3"
 	bl_options = {'REGISTER', 'UNDO'}
 
+	boost : bpy.props.FloatProperty(name="Boost", default=0.1, min=0, max=1)
 	boom : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
-	steps : bpy.props.IntProperty(name="Steps", default=64, min=0, max=128)
+	steps : bpy.props.IntProperty(name="Steps", default=32, min=0, max=128)
 
 
 	def cousin_verts(va):
@@ -66,6 +67,21 @@ class smoothie3(bpy.types.Operator):
 			l=l.x/( (l.y==0) and 1 or l.y)
 			lens[va.index]=l*self.boom
 
+# special case if all mesh is selected
+		allselect=True
+		for v in bm.verts:
+			if not v.select :
+				allselect=False
+				break
+		if allselect :
+			l=Vector((0,0))
+			for e in bm.edges:
+				l+=Vector(( e.calc_length(),1))
+			l=l.x/( (l.y==0) and 1 or l.y)
+			for v in bm.verts:
+				lens[va.index]=l*self.boom
+			
+# prebuild lens as weighted distance from fixed lens
 # init
 		for vw in bm.verts:
 			weights[vw.index]=Vector((0,0))
@@ -102,6 +118,7 @@ class smoothie3(bpy.types.Operator):
 				if a.y!=0 :
 					lens[v.index]=a.x/a.y
 
+# Create a stable fixed mesh based on topology to start with
 # init
 		for vw in bm.verts:
 			weights[vw.index]=Vector((0,0,0,0))
@@ -140,6 +157,49 @@ class smoothie3(bpy.types.Operator):
 					v.co=Vector((a.x,a.y,a.z))/a.w
 
 		bm.normal_update()
+
+
+# Apply a normal boot to this stable mesh
+# init
+		for vw in bm.verts:
+			weights[vw.index]=Vector((0,0,0,0))
+
+# process each vertex
+		for vw in bm.verts:
+# this vertex is locked
+			if not vw.select :
+# reset flood distance calc for this vertex
+				for v in bm.verts:
+					floods[v.index]=0x7fffffff
+# seed start of flood
+				floods[vw.index]=1.0
+				active=True
+				while active :
+					active=False
+					for e in bm.edges:
+						for ia in range(2): # flip flop
+							va=e.verts[ia]
+							vb=e.verts[(ia+1)%2]
+							if vb.select and floods[vb.index] > floods[va.index]+1 :
+								floods[vb.index] = floods[va.index]+1
+								active=True
+# add weight dependent on edge distance from main vertex
+				for v in bm.verts:
+					f=floods[v.index]
+					if v.select and f<0x7fffffff and f>0 :
+						vo = v.co + vw.normal*(v.co-vw.co).length*f*self.boost
+						weights[v.index]+=Vector((vo.x,vo.y,vo.z,1))*(1.0/(f*f*f))
+
+# apply all weights to find new vertex location
+		for v in bm.verts:
+			a=weights[v.index]
+			if v.select :
+				if a.w!=0 :
+					v.co=Vector((a.x,a.y,a.z))/a.w
+
+		bm.normal_update()
+
+# Perform spring solution of mesh to create smoothie result
 
 		for i in range(self.steps):
 # init
