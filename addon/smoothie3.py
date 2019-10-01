@@ -16,8 +16,8 @@ class smoothie3(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	boost : bpy.props.FloatProperty(name="Boost", default=0.1, min=0, max=1)
-	boom : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
 	steps : bpy.props.IntProperty(name="Steps", default=32, min=0, max=128)
+	boom : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
 
 
 	def cousin_verts(va):
