@@ -119,7 +119,7 @@ class smoothie2(bpy.types.Operator):
 				for v in bm.verts:
 					f=floods[v.index]
 					if v.select and f<0x7fffffff and f>0 :
-						vo = vw.co + vw.normal*(v.co-vw.co).length*f/2
+						vo = vw.co # + vw.normal*(v.co-vw.co).length*f/2
 						weights[v.index]+=Vector((vo.x,vo.y,vo.z,1))*(1.0/(f*f*f))
 
 # apply all weights to find new vertex location
