@@ -1,1 +1,1 @@
-blender --python addon/fatpoly.py fatpoly.blend
+blender --python python/fatpoly.py fatpoly.blend

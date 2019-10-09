@@ -6,7 +6,7 @@ base_path = Path(__file__).parent
 
 print( "LOADING FATPOLY" )
 
-for name in ("smoothie1.py","smoothie2.py","smoothie3.py") :
+for name in ("fatpoly_smoothie.py") :
 
 	filepath=(base_path / name).resolve()
 	print( filepath )

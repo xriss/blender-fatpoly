@@ -1,5 +1,5 @@
 bl_info = {
-	"name": "smoothie3",
+	"name": "fatpoly_smoothie",
 	"category": "Mesh",
 }
 
@@ -9,10 +9,10 @@ import bmesh
 from mathutils import *
 
 
-class smoothie3(bpy.types.Operator):
-	"""smoothie3"""
-	bl_idname = "mesh.smoothie3"
-	bl_label = "smoothie3"
+class fatpoly_smoothie(bpy.types.Operator):
+	"""fatpoly_smoothie"""
+	bl_idname = "mesh.fatpoly_smoothie"
+	bl_label = "fatpoly_smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	boost : bpy.props.FloatProperty(name="Boost", default=0.1, min=0, max=1)
@@ -61,7 +61,7 @@ class smoothie3(bpy.types.Operator):
 			weights[va.index]=Vector((0,0,0,0))
 
 			l=Vector((0,0))
-			for vb in smoothie3.brother_verts(va):
+			for vb in fatpoly_smoothie.brother_verts(va):
 				if not va.select and not vb.select : # fixed lengths only
 					l+=Vector(( (va.co-vb.co).length,1))
 			l=l.x/( (l.y==0) and 1 or l.y)
@@ -211,14 +211,14 @@ class smoothie3(bpy.types.Operator):
 
 # average length of edges
 				l=Vector((0,0))
-				for vb in smoothie3.cousin_verts(va):
+				for vb in fatpoly_smoothie.cousin_verts(va):
 					l+=Vector(( (va.co-vb.co).length,1))
 				l=l.x/( (l.y==0) and 1 or l.y)
 				
 				l=lens[va.index]
 
 # push each edge to the same length
-				for vb in smoothie3.cousin_verts(va):
+				for vb in fatpoly_smoothie.cousin_verts(va):
 					vc=va.normal.cross(va.co-vb.co)
 					vd=va.normal.cross(vc)
 					vd.normalize()
@@ -270,16 +270,16 @@ class smoothie3(bpy.types.Operator):
 			obj.data.update()
 
 def menu_func(self, context):
-	self.layout.operator(smoothie3.bl_idname)
+	self.layout.operator(fatpoly_smoothie.bl_idname)
 
 
 def register():
-	bpy.utils.register_class(smoothie3)
+	bpy.utils.register_class(fatpoly_smoothie)
 #	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
 #	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
-	bpy.utils.unregister_class(smoothie3)
+	bpy.utils.unregister_class(fatpoly_smoothie)
 
 
 if __name__ == "__main__":
