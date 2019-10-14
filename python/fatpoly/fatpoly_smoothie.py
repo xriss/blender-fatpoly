@@ -1,7 +1,3 @@
-bl_info = {
-	"name": "fatpoly_smoothie",
-	"category": "Mesh",
-}
 
 import bpy
 import bmesh
@@ -12,7 +8,7 @@ from mathutils import *
 class fatpoly_smoothie(bpy.types.Operator):
 	"""fatpoly_smoothie"""
 	bl_idname = "mesh.fatpoly_smoothie"
-	bl_label = "fatpoly_smoothie"
+	bl_label = "Fatpoly Smoothie"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	boost : bpy.props.FloatProperty(name="Boost", default=0.1, min=0, max=1)
