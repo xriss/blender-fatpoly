@@ -73,10 +73,13 @@ bezier surface.
 		and down to blend to and from the smoothed state. 
 
 
+Example full mesh smooth.
+
 ![fullsmooth0](/imgs/fullsmooth0.png)
 
 ![fullsmooth1](/imgs/fullsmooth1.png)
 
+Example of tweaking Boom.
 
 ![sidesmooth0](/imgs/sidesmooth0.png)
 
