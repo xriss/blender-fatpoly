@@ -1,3 +1,4 @@
 cd `dirname $0`
 cd python
-zip -r ../fatpoly.zip fatpoly/
+rm ../releases/fatpoly.zip
+zip -r ../releases/fatpoly.zip fatpoly/
