@@ -43,6 +43,8 @@ bezier surface.
 		to help prevent inverted solutions. Ideally this should be a 
 		small value but not 0.
 		
+		Best to leave this value to default.
+		
 	Steps = 32
 		The number of iterations to try and solve the spring system, if 
 		set to 0 then only the initial topology solution is performed. 
@@ -50,6 +52,8 @@ bezier surface.
 		boost and an ugly bump with a higher boost. Each step from this 
 		state will create a more pleasing solution but the higher this 
 		number is the slower the code runs.
+
+		Best to leave this value to default.
 		
 	Boom = 0.75
 		This adjusts the length of all springs used in the system, as 
@@ -58,3 +62,11 @@ bezier surface.
 		
 		This is the value you should tweak up and down until the you 
 		are happy with the results.
+
+	Blend = 1.0
+		Blend from initial coordinates of vertex to the new smoothed 
+		coordinate. This allows you to perform only a partial smooth 
+		from the stating coordinates.
+
+		This is another value you can tweak up and down to reduce the 
+		amount of smoothing.
