@@ -75,16 +75,19 @@ bezier surface.
 
 Example full mesh smooth.
 
-![fullsmooth0](/imgs/fullsmooth0.png)
+![fullsmooth0](imgs/fullsmooth0.png)
 
-![fullsmooth1](/imgs/fullsmooth1.png)
+![fullsmooth1](imgs/fullsmooth1.png)
 
 Example of tweaking Boom.
 
-![sidesmooth0](/imgs/sidesmooth0.png)
+![sidesmooth0](imgs/sidesmooth0.png)
 
 ![sidesmooth1](imgs/sidesmooth1.png)
 
 ![sidesmooth2](imgs/sidesmooth2.png)
 
 ![sidesmooth3](imgs/sidesmooth3.png)
+
+Note that a Boom of 0.01 gets you something similar to the standard 
+blender smooth with 32 steps.
