@@ -13,7 +13,8 @@ class fatpoly_smoothie(bpy.types.Operator):
 
 	boost : bpy.props.FloatProperty(name="Boost", default=0.1, min=0, max=1)
 	steps : bpy.props.IntProperty(name="Steps", default=32, min=0, max=128)
-	boom : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
+	boom  : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
+	blend : bpy.props.FloatProperty(name="BLend", default=1.00, min=0.0, max=1)
 
 	def fake_index_verts(bm,verts):
 		for v in bm.verts:
@@ -101,12 +102,14 @@ class fatpoly_smoothie(bpy.types.Operator):
 #		print( "VERTS %d" % (len(verts)) )
 #		print( "EDGES %d" % (len(edges)) )
 
+		coords  = [None] * len(verts) # starting coords
 		lens    = [None] * len(verts) # desired length for each vertex
 		floods  = [None] * len(verts) # flood fill weight calculation
 		weights = [None] * len(verts) # weighted xyz/w position for each vertex
 
 # init
 		for va in verts:
+			coords[va.index]=Vector((va.co.x,va.co.y,va.co.z))
 			weights[va.index]=Vector((0,0,0,0))
 
 			l=Vector((0,0))
@@ -271,6 +274,12 @@ class fatpoly_smoothie(bpy.types.Operator):
 
 			bm.normal_update()
 			fatpoly_smoothie.fake_index_verts(bm,verts)
+
+# blend from initial coords to new coords
+		for v in verts:
+			v.co = (coords[v.index]*(1.0-self.blend)) + (v.co*self.blend)
+
+		bm.normal_update()
 
 		self.set_bm(context,bm)
 		
