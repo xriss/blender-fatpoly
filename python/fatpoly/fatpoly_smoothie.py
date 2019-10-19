@@ -48,6 +48,8 @@ class fatpoly_smoothie(bpy.types.Operator):
 		if not bm :
 			return {'CANCELLED'}
 			
+		verts   = [None] # verts we care about
+
 		lens    = [None] * len(bm.verts) # desired length for each vertex
 		floods  = [None] * len(bm.verts) # flood fill weight calculation
 		weights = [None] * len(bm.verts) # weighted xyz/w position for each vertex
