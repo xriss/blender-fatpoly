@@ -1,8 +1,0 @@
-[submodule "docs"]
-	path = docs
-	url = https://github.com/xriss/blender-fatpoly.git
-	branch = gh-pages
-[submodule "releases"]
-	path = releases
-	url = https://github.com/xriss/blender-fatpoly.git
-	branch = releases
