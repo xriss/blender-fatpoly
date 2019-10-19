@@ -69,8 +69,8 @@ bezier surface.
 		coordinate. This allows you to perform only a partial smooth 
 		from the stating coordinates.
 
-		Although best left at 1.0 you may want to tweak this value up 
-		and down to blend to and from the smoothed state. 
+		Although best left at 1.0 you may want to tweak this value to 
+		blend to and from the smoothed state. 
 
 
 Example full mesh smooth.
