@@ -5,12 +5,11 @@ git checkout master
 
 git submodule update --init --reference .
 
-git pull --recurse-submodules && git submodule update --recursive --remote
-
+#git pull --recurse-submodules && git submodule update --recursive --remote
 #plated/upgrade
 
 echo " fixing local releases branch to track origin "
-cd exe
+cd releases
 git stash -u
 git reset --hard origin/releases
 git branch -f --track releases origin/releases
