@@ -15,6 +15,45 @@ class fatpoly_smoothie(bpy.types.Operator):
 	steps : bpy.props.IntProperty(name="Steps", default=32, min=0, max=128)
 	boom : bpy.props.FloatProperty(name="Boom", default=0.75, min=0.01, max=1)
 
+	def fake_index_verts(bm,verts):
+		for v in bm.verts:
+			v.index=-1
+		idx=0
+		for v in verts:
+			v.index=idx		# we use a new index for speed
+			idx=idx+1
+
+
+	def active_verts(bm):
+
+		d={}
+		for v in bm.verts:
+			if v.select:
+				d[v.index]=True
+				for va in fatpoly_smoothie.cousin_verts(v):
+					d[va.index]=True
+
+		r=[]
+		for n in list(d):
+			r.append( bm.verts[n] )
+
+		return r
+
+
+	def active_edges(bm,verts):
+
+		d={}
+
+		for e in bm.edges:
+			if e.verts[0].index>=0 and e.verts[1].index>=0 :
+				d[e.index]=True
+
+		r=[]
+		for n in list(d):
+			r.append( bm.edges[n] )
+
+		return r
+
 
 	def cousin_verts(va):
 
@@ -26,7 +65,7 @@ class fatpoly_smoothie(bpy.types.Operator):
 					l.append(vb)
 
 # remove dupes
-#		l=list(dict.fromkeys(l))
+		l=list(dict.fromkeys(l))
 
 		return l
 
@@ -47,15 +86,26 @@ class fatpoly_smoothie(bpy.types.Operator):
 		bm = self.get_bm(context)
 		if not bm :
 			return {'CANCELLED'}
-			
-		verts   = [None] # verts we care about
 
-		lens    = [None] * len(bm.verts) # desired length for each vertex
-		floods  = [None] * len(bm.verts) # flood fill weight calculation
-		weights = [None] * len(bm.verts) # weighted xyz/w position for each vertex
+# limit code to just these verts
+
+		bm.verts.ensure_lookup_table()
+		bm.edges.ensure_lookup_table()
+
+		verts   = fatpoly_smoothie.active_verts(bm)
+		
+		fatpoly_smoothie.fake_index_verts(bm,verts)
+
+		edges   = fatpoly_smoothie.active_edges(bm,verts)
+		
+
+	
+		lens    = [None] * len(verts) # desired length for each vertex
+		floods  = [None] * len(verts) # flood fill weight calculation
+		weights = [None] * len(verts) # weighted xyz/w position for each vertex
 
 # init
-		for va in bm.verts:
+		for va in verts:
 			weights[va.index]=Vector((0,0,0,0))
 
 			l=Vector((0,0))
@@ -67,50 +117,51 @@ class fatpoly_smoothie(bpy.types.Operator):
 
 # special case if all mesh is selected
 		allselect=True
-		for v in bm.verts:
+		for v in verts:
 			if not v.select :
 				allselect=False
 				break
 		if allselect :
 			l=Vector((0,0))
-			for e in bm.edges:
+			for e in edges:
 				l+=Vector(( e.calc_length(),1))
 			l=l.x/( (l.y==0) and 1 or l.y)
-			for v in bm.verts:
+			for v in verts:
 				lens[va.index]=l*self.boom
 			
 # prebuild lens as weighted distance from fixed lens
 # init
-		for vw in bm.verts:
+		for vw in verts:
 			weights[vw.index]=Vector((0,0))
 
 # process each vertex
-		for vw in bm.verts:
+		for vw in verts:
 # this vertex has a len
 			if lens[vw.index]!=0 :
 # reset flood distance calc for this vertex
-				for v in bm.verts:
+				for v in verts:
 					floods[v.index]=0x7fffffff
 # seed start of flood
 				floods[vw.index]=1.0
 				active=True
 				while active :
 					active=False
-					for e in bm.edges:
+					for e in edges:
 						for ia in range(2): # flip flop
 							va=e.verts[ia]
 							vb=e.verts[(ia+1)%2]
-							if lens[vb.index]==0 and floods[vb.index] > floods[va.index]+1 :
-								floods[vb.index] = floods[va.index]+1
-								active=True
+							if va.index>=0 and vb.index>=0 :
+								if lens[vb.index]==0 and floods[vb.index] > floods[va.index]+1 :
+									floods[vb.index] = floods[va.index]+1
+									active=True
 # add weight dependent on edge distance from main vertex
-				for v in bm.verts:
+				for v in verts:
 					f=floods[v.index]
 					if lens[v.index]==0 and f<0x7fffffff and f>0 :
 						weights[v.index]+=Vector((lens[vw.index],1))*(1.0/(f*f*f))
 
 # apply all weights to find new vertex length
-		for v in bm.verts:
+		for v in verts:
 			a=weights[v.index]
 			if lens[v.index]==0 :
 				if a.y!=0 :
@@ -118,94 +169,98 @@ class fatpoly_smoothie(bpy.types.Operator):
 
 # Create a stable fixed mesh based on topology to start with
 # init
-		for vw in bm.verts:
+		for vw in verts:
 			weights[vw.index]=Vector((0,0,0,0))
 
 # process each vertex
-		for vw in bm.verts:
+		for vw in verts:
 # this vertex is locked
 			if not vw.select :
 # reset flood distance calc for this vertex
-				for v in bm.verts:
+				for v in verts:
 					floods[v.index]=0x7fffffff
 # seed start of flood
 				floods[vw.index]=1.0
 				active=True
 				while active :
 					active=False
-					for e in bm.edges:
+					for e in edges:
 						for ia in range(2): # flip flop
 							va=e.verts[ia]
 							vb=e.verts[(ia+1)%2]
-							if vb.select and floods[vb.index] > floods[va.index]+1 :
-								floods[vb.index] = floods[va.index]+1
-								active=True
+							if va.index>=0 and vb.index>=0 :
+								if vb.select and floods[vb.index] > floods[va.index]+1 :
+									floods[vb.index] = floods[va.index]+1
+									active=True
 # add weight dependent on edge distance from main vertex
-				for v in bm.verts:
+				for v in verts:
 					f=floods[v.index]
 					if v.select and f<0x7fffffff and f>0 :
 						vo = vw.co
 						weights[v.index]+=Vector((vo.x,vo.y,vo.z,1))*(1.0/(f*f*f))
 
 # apply all weights to find new vertex location
-		for v in bm.verts:
+		for v in verts:
 			a=weights[v.index]
 			if v.select :
 				if a.w!=0 :
 					v.co=Vector((a.x,a.y,a.z))/a.w
 
 		bm.normal_update()
+		fatpoly_smoothie.fake_index_verts(bm,verts)
 
-
-# Apply a normal boot to this stable mesh
+# Apply a normal boost to this stable mesh
 # init
-		for vw in bm.verts:
+		for vw in verts:
 			weights[vw.index]=Vector((0,0,0,0))
 
 # process each vertex
-		for vw in bm.verts:
+		for vw in verts:
 # this vertex is locked
 			if not vw.select :
 # reset flood distance calc for this vertex
-				for v in bm.verts:
+				for v in verts:
 					floods[v.index]=0x7fffffff
 # seed start of flood
 				floods[vw.index]=1.0
 				active=True
 				while active :
 					active=False
-					for e in bm.edges:
+					for e in edges:
 						for ia in range(2): # flip flop
 							va=e.verts[ia]
 							vb=e.verts[(ia+1)%2]
-							if vb.select and floods[vb.index] > floods[va.index]+1 :
-								floods[vb.index] = floods[va.index]+1
-								active=True
+							if va.index>=0 and vb.index>=0 :
+								if vb.select and floods[vb.index] > floods[va.index]+1 :
+									floods[vb.index] = floods[va.index]+1
+									active=True
 # add weight dependent on edge distance from main vertex
-				for v in bm.verts:
+				for v in verts:
 					f=floods[v.index]
 					if v.select and f<0x7fffffff and f>0 :
 						vo = v.co + vw.normal*(v.co-vw.co).length*f*self.boost
 						weights[v.index]+=Vector((vo.x,vo.y,vo.z,1))*(1.0/(f*f*f))
 
 # apply all weights to find new vertex location
-		for v in bm.verts:
+		for v in verts:
 			a=weights[v.index]
 			if v.select :
 				if a.w!=0 :
 					v.co=Vector((a.x,a.y,a.z))/a.w
 
 		bm.normal_update()
-
+		fatpoly_smoothie.fake_index_verts(bm,verts)
+		
+		
 # Perform spring solution of mesh to create smoothie result
 
 		for i in range(self.steps):
 # init
-			for va in bm.verts:
+			for va in verts:
 				weights[va.index]=Vector((0,0,0,0))
 
 # process each vertex
-			for va in bm.verts:
+			for va in verts:
 
 # average length of edges
 				l=Vector((0,0))
@@ -228,14 +283,14 @@ class fatpoly_smoothie(bpy.types.Operator):
 						weights[va.index]+=Vector((vo.x,vo.y,vo.z,1)) # ORDER
 
 # apply all weights to find new vertex location
-			for v in bm.verts:
+			for v in verts:
 				a=weights[v.index]
 				if v.select :
 					if a.w!=0 :
 						v.co=Vector((a.x,a.y,a.z))/a.w
 
 			bm.normal_update()
-
+			fatpoly_smoothie.fake_index_verts(bm,verts)
 
 		self.set_bm(context,bm)
 		
