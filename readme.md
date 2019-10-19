@@ -71,3 +71,16 @@ bezier surface.
 
 		Although best left at 1.0 you may want to tweak this value up 
 		and down to blend to and from the smoothed state. 
+
+
+imgs/fullsmooth0.png
+
+imgs/fullsmooth1.png
+
+
+imgs/sidesmooth0.png
+
+imgs/sidesmooth1.png
+
+imgs/sidesmooth2.png
+
