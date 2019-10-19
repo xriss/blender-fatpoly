@@ -73,14 +73,14 @@ bezier surface.
 		and down to blend to and from the smoothed state. 
 
 
-imgs/fullsmooth0.png
+![fullsmooth0](/imgs/fullsmooth0.png)
 
-imgs/fullsmooth1.png
+![fullsmooth1](/imgs/fullsmooth1.png)
 
 
-imgs/sidesmooth0.png
+![sidesmooth0](/imgs/sidesmooth0.png)
 
-imgs/sidesmooth1.png
+![sidesmooth1](imgs/sidesmooth1.png)
 
-imgs/sidesmooth2.png
+![sidesmooth2](imgs/sidesmooth2.png)
 
