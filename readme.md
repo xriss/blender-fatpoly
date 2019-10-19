@@ -1,11 +1,24 @@
-download this zip to install into blender
+
+To install the Fatpoly add-on, first download this zip file
 
 https://github.com/xriss/blender-fatpoly/raw/releases/fatpoly.zip
 
-To run hit F3 and type fatpoly and you should see "Fatpoly Smoothie" as 
-an option this mesh tool will perform a weighted spring system style 
-smoothing of the selected vertexes using the unselected vertexes as 
-immovable anchor points.
+Run Blender and go to user preferences and open the add-ons tab.
+
+Click Install add-on from file and choose this zip file.
+
+Finally you must check the box next to Fatpoly to enable this addon.
+
+
+To use hit F3 and type fatpoly and you should see "Fatpoly Smoothie" as 
+an available mesh tool, in the future I expect to add more.
+
+
+## Fatpoly Smoothie
+
+This mesh tool will perform a weighted spring system style smoothing of 
+the selected vertexes using the unselected vertexes as immovable anchor 
+points.
 
 It is best not to select the entire mesh, although this will work it 
 will behave similar to the normal blender smooth slowly shrinking the 
