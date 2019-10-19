@@ -31,12 +31,11 @@ run.
 		
 	Steps = 32
 		The number of iterations to try and solve the spring system, if 
-		set to 0 the only the initial topology solution with boost 
-		supplied is performed. This initial state will generally be a 
-		flat plane with a low boost and an ugly bump with a higher 
-		boost. Each step from this state will create a more pleasing 
-		solution slowly approaching the perfect solution. The higher 
-		this number is the slower the code will be.
+		set to 0 the only the initial topology solution is performed. 
+		This initial state will generally be a flat plane with a low 
+		boost and an ugly bump with a higher boost. Each step from this 
+		state will create a more pleasing solution but the higher this 
+		number is the slower the code run.
 		
 	Boom = 0.75
 		This adjusts the length of all springs used in the system, as 
