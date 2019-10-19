@@ -87,3 +87,4 @@ Example of tweaking Boom.
 
 ![sidesmooth2](imgs/sidesmooth2.png)
 
+![sidesmooth3](imgs/sidesmooth3.png)
