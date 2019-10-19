@@ -39,18 +39,21 @@ run.
 
 	Boost = 0.10 
 		This gives the initial topology solution a gentle push outwards 
-		to help prevent inverting solutions. Ideally this should be a 
+		to help prevent inverted solutions. Ideally this should be a 
 		small value but not 0.
 		
 	Steps = 32
 		The number of iterations to try and solve the spring system, if 
-		set to 0 the only the initial topology solution is performed. 
+		set to 0 then only the initial topology solution is performed. 
 		This initial state will generally be a flat plane with a low 
 		boost and an ugly bump with a higher boost. Each step from this 
 		state will create a more pleasing solution but the higher this 
-		number is the slower the code run.
+		number is the slower the code runs.
 		
 	Boom = 0.75
 		This adjusts the length of all springs used in the system, as 
 		the springs increase in length so the polygons will push 
 		outward like a blister and visa versa.
+		
+		This is the value you should tweak up and down until the you 
+		are happy with the results.
