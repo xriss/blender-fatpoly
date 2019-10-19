@@ -34,8 +34,9 @@ will use the surrounding normals and tangents as well as the topology
 of the area selected to create a smooth solution to the surface. The 
 initial starting point of these vertexes is ignored, only the location 
 of the surrounding unselected vertexes are taken into account. This 
-means that we should come to the same stable solution every time we are 
-run.
+means that we will come to the same stable solution every time we are 
+run. Picture it as if the surrounding polygons are control points on a 
+bezier surface.
 
 	Boost = 0.10 
 		This gives the initial topology solution a gentle push outwards 
