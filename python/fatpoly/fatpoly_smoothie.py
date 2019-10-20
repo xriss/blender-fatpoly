@@ -120,14 +120,13 @@ class fatpoly_smoothie(bpy.types.Operator):
 			lens[va.index]=l*self.boom
 
 # special case if all mesh is selected
-		allselect=True
-		for v in verts:
-			if not v.select :
-				allselect=False
-				break
+		allselect=False
+		if len(verts) >= len(bm.verts) :
+			allselect=True
+
 		if allselect :
 			l=Vector((0,0))
-			for e in edges:
+			for e in bm.edges:
 				l+=Vector(( e.calc_length(),1))
 			l=l.x/( (l.y==0) and 1 or l.y)
 			for v in verts:
@@ -140,27 +139,24 @@ class fatpoly_smoothie(bpy.types.Operator):
 # perform flood once and cache it
 # process each vertex
 		for vw in verts:
-# this vertex has a len
-			if lens[vw.index]!=0 :
-
-				flood=[None] * len(verts)
-				floods[vw.index]=flood
+			flood=[None] * len(verts)
+			floods[vw.index]=flood
 # reset flood distance calc for this vertex
-				for v in verts:
-					flood[v.index]=0x7fffffff
+			for v in verts:
+				flood[v.index]=0x7fffffff
 # seed start of flood
-				flood[vw.index]=1.0
-				active=True
-				while active :
-					active=False
-					for e in edges:
-						for ia in range(2): # flip flop
-							va=e.verts[ia]
-							vb=e.verts[(ia+1)%2]
-							if va.index>=0 and vb.index>=0 :
-								if lens[vb.index]==0 and flood[vb.index] > flood[va.index]+1 :
-									flood[vb.index] = flood[va.index]+1
-									active=True
+			flood[vw.index]=1.0
+			active=True
+			while active :
+				active=False
+				for e in edges:
+					for ia in range(2): # flip flop
+						va=e.verts[ia]
+						vb=e.verts[(ia+1)%2]
+						if va.index>=0 and vb.index>=0 :
+							if flood[vb.index] > flood[va.index]+1 :
+								flood[vb.index] = flood[va.index]+1
+								active=True
 
 # add weight dependent on edge distance from main vertex
 # process each vertex
