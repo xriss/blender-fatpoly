@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "FatPoly",
 	"category": "Mesh",
-	"version": (0, 1),
+	"version": (0, 2),
 	"blender": (2, 80, 0),
 }
 
