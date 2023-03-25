@@ -1,8 +1,13 @@
 
+import bpy
+
 from pathlib import Path
 
 base_path = Path(__file__).parent
 
+#base_path = Path("/home/kriss/git/blender-fatpoly/python")
+
+bpy.ops.script.reload()
 
 print( "LOADING FATPOLY" )
 

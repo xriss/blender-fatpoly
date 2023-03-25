@@ -302,7 +302,7 @@ class fatpoly_smoothie(bpy.types.Operator):
 		if obj.type != "MESH" :
 			return
 		if obj.mode == "EDIT" :
-			bmesh.update_edit_mesh(obj.data, False, False)
+			bmesh.update_edit_mesh(obj.data, loop_triangles=False, destructive=False)
 		else:
 			bm.to_mesh(obj.data)
 			obj.data.update()
@@ -313,10 +313,10 @@ def menu_func(self, context):
 
 def register():
 	bpy.utils.register_class(fatpoly_smoothie)
-#	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
+	bpy.types.VIEW3D_MT_edit_mesh.append(menu_func)
 
 def unregister():
-#	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
+	bpy.types.VIEW3D_MT_edit_mesh.remove(menu_func)
 	bpy.utils.unregister_class(fatpoly_smoothie)
 
 
