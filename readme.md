@@ -1,7 +1,7 @@
 
 To install the Fatpoly add-on, first download this zip file
 
-https://github.com/xriss/blender-fatpoly/raw/releases/fatpoly.zip
+https://github.com/xriss/blender-fatpoly/raw/blender-fatpoly.zip
 
 Run Blender and go to user preferences and open the add-ons tab.
 
